@@ -41,7 +41,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             NSForegroundColorAttributeName : UIColor.whiteColor(),
             NSBackgroundColorAttributeName : UIColor.clearColor(),
             NSFontAttributeName : UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
-            NSStrokeWidthAttributeName : -3.0,
+            NSStrokeWidthAttributeName : -3.0
         ]
         topTextField.defaultTextAttributes = memeTextAttributes
         bottomTextField.defaultTextAttributes = memeTextAttributes
@@ -62,6 +62,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         topTextField.borderStyle = UITextBorderStyle.None
         bottomTextField.borderStyle = UITextBorderStyle.None
+        
+        // set capitalization for all characters
+        topTextField.autocapitalizationType = UITextAutocapitalizationType.AllCharacters
     }
     
 //    override func viewDidLayoutSubviews() {
@@ -229,13 +232,17 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func keyboardWillShow(notification: NSNotification) {
-        // Move the view up to accomodate the keyboard deployment
-        self.view.frame.origin.y -= getKeyboardHeight(notification)
+        if bottomTextField.isFirstResponder() {
+            // Move the view up to accomodate the keyboard deployment
+            self.view.frame.origin.y -= getKeyboardHeight(notification)
+        }
     }
     
     func keyboardWillHide(notification: NSNotification) {
-        // Move the view down to accomodate the keyboard hide
-        self.view.frame.origin.y += getKeyboardHeight(notification)
+        if bottomTextField.isFirstResponder() {
+            // Move the view down to accomodate the keyboard hide
+            self.view.frame.origin.y += getKeyboardHeight(notification)
+        }
     }
     
     func getKeyboardHeight(notification: NSNotification) -> CGFloat {
