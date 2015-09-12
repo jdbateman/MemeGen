@@ -14,9 +14,4 @@ struct Meme {
     var bottomText: String = ""
     var originalImage: UIImage
     var memedImage: UIImage
-    
-//    func init( topText: topTextField.text!, bottomText: bottomTextField.text!, image:
-//        imageView.image, memedImage: memedImage) {
-//            
-//    }
 }
