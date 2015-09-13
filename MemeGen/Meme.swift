@@ -14,4 +14,10 @@ struct Meme {
     var bottomText: String = ""
     var originalImage: UIImage
     var memedImage: UIImage
+
+}
+
+extension Meme: Equatable {}
+func ==(lhs: Meme, rhs: Meme) -> Bool {
+    return ( (lhs.topText == rhs.topText) && (lhs.bottomText == rhs.bottomText) && (lhs.originalImage == rhs.originalImage) && (lhs.memedImage == rhs.memedImage) )
 }

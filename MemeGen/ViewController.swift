@@ -26,14 +26,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        if let meme = meme {
+            initViewWithMeme()
+        } else {
+            initViewWithMemeDefaults()
+        }
+        
         // set the UITextTfieldDelegate to self
         self.topTextField.delegate = self
         self.bottomTextField.delegate = self
-
-        // init the text field text
-        self.topTextField.text = "TOP"
-        self.bottomTextField.text = "BOTTOM"
-
         
         // set the text field attributes to be all caps, white with a black outline.
         let memeTextAttributes = [
@@ -60,6 +61,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         // set capitalization for all characters
         topTextField.autocapitalizationType = UITextAutocapitalizationType.AllCharacters
+        bottomTextField.autocapitalizationType = UITextAutocapitalizationType.AllCharacters
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -270,6 +272,26 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let controller = self.storyboard!.instantiateViewControllerWithIdentifier("CollectionOfSentMemesViewControllerID")! as! CollectionOfSentMemesViewController
         
         self.navigationController!.pushViewController(controller, animated: true)
+    }
+    
+    // Initialize the view with default values.
+    func initViewWithMemeDefaults() {
+        // init the text field text
+        self.topTextField.text = "TOP"
+        self.bottomTextField.text = "BOTTOM"
+    }
+    
+    // Initialize the view with the current meme.
+    func initViewWithMeme() {
+        // init the text field text
+        self.topTextField.text = meme?.topText
+        self.bottomTextField.text = meme?.bottomText
+        
+        // init the image
+        self.imageView.image = meme?.originalImage
+        
+        // enable the share button
+        toggleShareButton()
     }
 }
 
