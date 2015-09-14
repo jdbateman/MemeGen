@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class MemeDetailViewController: UIViewController {
 
@@ -14,6 +15,10 @@ class MemeDetailViewController: UIViewController {
     @IBOutlet var memedUIImageView: UIImageView!
     @IBOutlet var topLabel: UILabel!
     @IBOutlet var bottomLabel: UILabel!
+    
+    lazy var sharedContext = {
+       return CoreDataStackManager.sharedInstance().managedObjectContext
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,6 +60,7 @@ class MemeDetailViewController: UIViewController {
     
     /* The Delete button was selected. Remove the meme from the memes collection. */
     func onDeleteButtonTap() {
+        
         // get a copy of the primary memes collection (which is a struct)
         var memeArray : [Meme] = (UIApplication.sharedApplication().delegate as! AppDelegate).memes
         
@@ -69,6 +75,12 @@ class MemeDetailViewController: UIViewController {
         
         // copy the reduced array back to the primary memes collection
         (UIApplication.sharedApplication().delegate as! AppDelegate).memes = memeArray
+        
+        // delete from core data and save the core data context
+        if let meme = self.meme {
+            sharedContext?.deleteObject(meme)
+            CoreDataStackManager.sharedInstance().saveContext()
+        }
         
         // navigate back to the parent VC
         self.navigationController?.popViewControllerAnimated(true)

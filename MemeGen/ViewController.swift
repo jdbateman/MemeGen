@@ -8,6 +8,7 @@
 //  This file implements the Meme Editor view controller.
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate  {
     
@@ -22,6 +23,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     var meme: Meme?
 
+    lazy var sharedContext: NSManagedObjectContext = {
+       return CoreDataStackManager.sharedInstance().managedObjectContext!
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -260,10 +264,20 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         //Create the Meme instance
         if let origImg = imageView.image {
-            var meme = Meme( topText: topTextField.text, bottomText: bottomTextField.text, originalImage:origImg, memedImage: memedImage)
+            
+            // create a new Meme instance
+            var dict = [String: AnyObject]()
+            dict[Meme.keys.topText] = topTextField.text
+            dict[Meme.keys.bottomText] = bottomTextField.text
+            dict[Meme.keys.originalImageData] = UIImageJPEGRepresentation(origImg, 1)
+            dict[Meme.keys.memedImageData] = UIImageJPEGRepresentation(memedImage, 1)
+            var meme = Meme(dictionary:dict, context: sharedContext)
             
             // save the meme to the memes array
             (UIApplication.sharedApplication().delegate as! AppDelegate).memes.append(meme)
+            
+            // save the core data context
+            CoreDataStackManager.sharedInstance().saveContext()
         }
     }
     
