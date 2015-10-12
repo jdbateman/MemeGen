@@ -8,6 +8,7 @@
 //  This file implements the Meme Editor view controller.
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate  {
     
@@ -22,18 +23,22 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     var meme: Meme?
 
+    lazy var sharedContext: NSManagedObjectContext = {
+       return CoreDataStackManager.sharedInstance().managedObjectContext!
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        if let meme = meme {
+            initViewWithMeme()
+        } else {
+            initViewWithMemeDefaults()
+        }
+        
         // set the UITextTfieldDelegate to self
         self.topTextField.delegate = self
         self.bottomTextField.delegate = self
-
-        // init the text field text
-        self.topTextField.text = "TOP"
-        self.bottomTextField.text = "BOTTOM"
-
         
         // set the text field attributes to be all caps, white with a black outline.
         let memeTextAttributes = [
@@ -41,7 +46,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             NSForegroundColorAttributeName : UIColor.whiteColor(),
             NSBackgroundColorAttributeName : UIColor.clearColor(),
             NSFontAttributeName : UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
-            NSStrokeWidthAttributeName : -3.0,
+            NSStrokeWidthAttributeName : -3.0
         ]
         topTextField.defaultTextAttributes = memeTextAttributes
         bottomTextField.defaultTextAttributes = memeTextAttributes
@@ -55,25 +60,13 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         bottomTextField.backgroundColor = UIColor.clearColor()
         
         // hide label border
-        //topTextField.layer.borderWidth = 0;
-        //topTextField.layer.borderColor = UIColor.clearColor().CGColor
-        //bottomTextField.layer.borderWidth = 0;
-        //bottomTextField.layer.borderColor = UIColor.clearColor().CGColor
-        
         topTextField.borderStyle = UITextBorderStyle.None
         bottomTextField.borderStyle = UITextBorderStyle.None
+        
+        // set capitalization for all characters
+        topTextField.autocapitalizationType = UITextAutocapitalizationType.AllCharacters
+        bottomTextField.autocapitalizationType = UITextAutocapitalizationType.AllCharacters
     }
-    
-//    override func viewDidLayoutSubviews() {
-//        let border = CALayer()
-//        let width = CGFloat(0.0)
-//        border.borderColor = UIColor.clearColor().CGColor
-//        border.frame = CGRect(x: 0, y: bottomTextField.frame.size.height - width, width:  bottomTextField.frame.size.width, height: bottomTextField.frame.size.height)
-//        
-//        border.borderWidth = width
-//        bottomTextField.layer.addSublayer(border)
-//        bottomTextField.layer.masksToBounds = true
-//    }
 
     override func viewWillAppear(animated: Bool) {
         
@@ -93,17 +86,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             cameraButton.enabled = false
         }
         
-        // set imageView to width and height of screen
-        //self.imageView.frame = CGRectMake(0,0,self.view.frame.width,imageView.frame.height)
-        
         // set state of share button
         self.toggleShareButton()
-        
-        // ensure labels are drawn on top of image if a new image has been loaded
-//        self.view.bringSubviewToFront( self.topTextField)
-//        self.view.bringSubviewToFront( self.bottomTextField)
-        
-//        self.view.setNeedsDisplay();
     }
     
     // enable or disable share button based on presence of valid memed image
@@ -143,17 +127,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             controller.completionWithItemsHandler = {
                 (s: String!, ok: Bool, items: [AnyObject]!, err:NSError!) -> Void in
                 // save the Meme
-                self.saveMeme() //println("completed \(s) \(ok) \(items) \(err)")
+                self.saveMeme()
                 
                 // dismiss the meme editor view controller (the activity view controller has already been dismissed)
                 self.dismissViewControllerAnimated(true, completion: nil)
-//                if let navController = self.navigationController {
-//                    navController.popViewControllerAnimated(true)
-//                }
             }
-//            if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-//                presentViewController(controller, animated: true, completion: nil)
-//            }
             
             if controller.respondsToSelector(Selector("popoverPresentationController")) {
                 // iOS 8 iPad
@@ -162,27 +140,18 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     presentViewController( controller, animated: true, completion: nil )
                 } else {  // iOS 8 iPhone
                     presentViewController(controller, animated: true, completion: nil)
-                //controller.popoverPresentationController?.sourceView = self.toolbar! // self.toolbar
                 }
             }
             else {
                 // iOS 7 phone or iPad
                 presentViewController(controller, animated: true, completion: nil)
             }
-//            [activityViewController respondsToSelector:@selector(popoverPresentationController)] ) { // iOS8 activityViewController.popoverPresentationController.sourceView = _shareItem; }
-            
         }
     }
     
     @IBAction func onCancel(sender: UIBarButtonItem) {
         // dismiss the meme editor view controller
         self.dismissViewControllerAnimated(true, completion: nil)
-//        if let navController = self.navigationController {
-//            navController.popViewControllerAnimated(true)
-//        }
-        
-        // present the SentMemes view controller
-        //TODO - need this line back? ... displaySentMemesView()
     }
     
     func presentImagePicker(var sourceType: UIImagePickerControllerSourceType) {
@@ -229,13 +198,17 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func keyboardWillShow(notification: NSNotification) {
-        // Move the view up to accomodate the keyboard deployment
-        self.view.frame.origin.y -= getKeyboardHeight(notification)
+        if bottomTextField.isFirstResponder() {
+            // Move the view up to accomodate the keyboard deployment
+            self.view.frame.origin.y -= getKeyboardHeight(notification)
+        }
     }
     
     func keyboardWillHide(notification: NSNotification) {
-        // Move the view down to accomodate the keyboard hide
-        self.view.frame.origin.y += getKeyboardHeight(notification)
+        if bottomTextField.isFirstResponder() {
+            // Move the view down to accomodate the keyboard hide
+            self.view.frame.origin.y += getKeyboardHeight(notification)
+        }
     }
     
     func getKeyboardHeight(notification: NSNotification) -> CGFloat {
@@ -270,7 +243,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     // gauranteed to return an image
     func generateMemedImage() -> UIImage {
         
-        // TODO: Hide toolbar and navbar
+        // Hide toolbar and navbar
         self.toolbar.hidden = true
         
         // Render view to an image
@@ -279,7 +252,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let memedImage : UIImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        // TODO:  Show toolbar and navbar
+        // Show toolbar and navbar
         self.toolbar.hidden = false
         
         return memedImage
@@ -291,26 +264,48 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         //Create the Meme instance
         if let origImg = imageView.image {
-            var meme = Meme( topText: topTextField.text, bottomText: bottomTextField.text, originalImage:origImg, memedImage: memedImage)
+            
+            // create a new Meme instance
+            var dict = [String: AnyObject]()
+            dict[Meme.keys.topText] = topTextField.text
+            dict[Meme.keys.bottomText] = bottomTextField.text
+            dict[Meme.keys.originalImageData] = UIImageJPEGRepresentation(origImg, 1)
+            dict[Meme.keys.memedImageData] = UIImageJPEGRepresentation(memedImage, 1)
+            var meme = Meme(dictionary:dict, context: sharedContext)
             
             // save the meme to the memes array
             (UIApplication.sharedApplication().delegate as! AppDelegate).memes.append(meme)
             
-            // for testing set the view's background image to memedImage
-            //self.view.backgroundColor = UIColor(patternImage: memedImage)
-            
-            //TODO - displaySentMemesView()
+            // save the core data context
+            CoreDataStackManager.sharedInstance().saveContext()
         }
     }
     
-    //TODO - need modify? Is it causing both tab bar items to invoke the same list/collection VC?
     // Push the Sent Memes View
     func displaySentMemesView() {
-        //            let controller = self.storyboard!.instantiateViewControllerWithIdentifier("ListOfSentMemesViewControllerID")! as ListOfSentMemesViewController
-        
         let controller = self.storyboard!.instantiateViewControllerWithIdentifier("CollectionOfSentMemesViewControllerID")! as! CollectionOfSentMemesViewController
         
         self.navigationController!.pushViewController(controller, animated: true)
+    }
+    
+    // Initialize the view with default values.
+    func initViewWithMemeDefaults() {
+        // init the text field text
+        self.topTextField.text = "TOP"
+        self.bottomTextField.text = "BOTTOM"
+    }
+    
+    // Initialize the view with the current meme.
+    func initViewWithMeme() {
+        // init the text field text
+        self.topTextField.text = meme?.topText
+        self.bottomTextField.text = meme?.bottomText
+        
+        // init the image
+        self.imageView.image = meme?.originalImage
+        
+        // enable the share button
+        toggleShareButton()
     }
 }
 

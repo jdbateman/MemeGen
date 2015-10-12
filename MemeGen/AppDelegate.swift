@@ -7,15 +7,31 @@
 //
 
 import UIKit
+import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     var memes = [Meme]()
+    
+    lazy var sharedContext = {
+       return CoreDataStackManager.sharedInstance().managedObjectContext
+    }()
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // Initialize memes collection from core data store.
+        let errorPointer: NSErrorPointer = nil
+        let fetchRequest = NSFetchRequest(entityName: "Meme")
+        let results = sharedContext?.executeFetchRequest(fetchRequest, error: errorPointer)
+        if errorPointer != nil {
+            println("error in fetchRequest, aplication didFinishLaunchingWithOptions: \(errorPointer)")
+        } else {
+            memes = results as! [Meme]
+        }
+        
         return true
     }
 

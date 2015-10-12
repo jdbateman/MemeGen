@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class MemeDetailViewController: UIViewController {
 
@@ -15,14 +16,26 @@ class MemeDetailViewController: UIViewController {
     @IBOutlet var topLabel: UILabel!
     @IBOutlet var bottomLabel: UILabel!
     
+    lazy var sharedContext = {
+       return CoreDataStackManager.sharedInstance().managedObjectContext
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "rotated", name: UIDeviceOrientationDidChangeNotification, object: nil)
+        
+        // Add Delete and Edit right bar button items
+        let button1 = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: "onEditButtonTap")
+        let button2 = UIBarButtonItem(barButtonSystemItem: .Trash, target: self, action: "onDeleteButtonTap")
+        
+        //let button2 = UIBarButtonItem(image: UIImage(named: "pin"), style: .Plain, target: self, action: "onDeleteButtonTap")
+        navigationItem.leftItemsSupplementBackButton = true
+        navigationItem.setRightBarButtonItems([button1, button2], animated: true)
     }
     
     override func viewWillAppear(animated: Bool) {
-        updateLabels()
+        drawMeme()
     }
     
     override func didReceiveMemoryWarning() {
@@ -30,50 +43,60 @@ class MemeDetailViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
     
+    // MARK: button handlers
+    
+    /* The Edit button was selected. Present the Meme Edit view initialized to the current meme. */
+    func onEditButtonTap() {
+        // Present the meme edit view
+        var storyboard = UIStoryboard (name: "Main", bundle: nil)
+        var controller = storyboard.instantiateViewControllerWithIdentifier("NavigationControllerForMemeEditorViewControllerID") as! UINavigationController
+        (controller.viewControllers.first as! ViewController).meme = self.meme
+        presentViewController(controller, animated: true, completion: nil)
+        
+        // navigate back to the parent VC
+        self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    /* The Delete button was selected. Remove the meme from the memes collection. */
+    func onDeleteButtonTap() {
+        
+        // get a copy of the primary memes collection (which is a struct)
+        var memeArray : [Meme] = (UIApplication.sharedApplication().delegate as! AppDelegate).memes
+        
+        // remove the current meme from the copy of the memes collection
+        memeArray = memeArray.filter{
+            if $0 == self.meme {
+                return false // skip it
+            } else {
+                return true // keep it
+            }
+        }
+        
+        // copy the reduced array back to the primary memes collection
+        (UIApplication.sharedApplication().delegate as! AppDelegate).memes = memeArray
+        
+        // delete from core data and save the core data context
+        if let meme = self.meme {
+            sharedContext?.deleteObject(meme)
+            CoreDataStackManager.sharedInstance().saveContext()
+        }
+        
+        // navigate back to the parent VC
+        self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    
+    // MARK: helper functions
+    
+    /* handler for UIDeviceOrientationDidChangeNotification. Redraw the meme. */
     func rotated()
-    {
-        if(UIDeviceOrientationIsLandscape(UIDevice.currentDevice().orientation))
-        {
-            println("landscape")
-
-        }
-
-        if(UIDeviceOrientationIsPortrait(UIDevice.currentDevice().orientation))
-        {
-            println("Portrait")
-
-        }
-        
-        updateLabels()
-        
-//        self.collectionView.setNeedsDisplay()
-//        self.view.setNeedsDisplay()
-//        self.collectionView.reloadData()
-//
-//        dispatch_async(dispatch_get_main_queue(), {
-//            self.collectionView.setNeedsDisplay()
-//            self.view.setNeedsDisplay()
-//            self.collectionView.reloadData()
-//        })
-
-
-//        dispatch_async(dispatch_get_main_queue(), {
-//            (self.collectionView.reloadData())
-//        })
+    {        
+        drawMeme()
     }
     
-    func updateLabels() {
+    /* Redraw the Meme's image and labels. */
+    func drawMeme() {
         if let theMeme = meme {
             var anImage:UIImage?
             anImage = theMeme.memedImage
@@ -81,31 +104,7 @@ class MemeDetailViewController: UIViewController {
                 if (memedUIImageView != nil) {
                     memedUIImageView.image = img
                 }
-            }
-            
-            //            let attrifont:UIFont = UIFont(name: "HelveticaNeue-CondensedBlack", size: 40.0)!
-            //            let attriString = NSMutableAttributedString(string:theMeme.topText, attributes:
-            //                [
-            //                    NSForegroundColorAttributeName: UIColor.whiteColor(),
-            //                    NSStrokeColorAttributeName: UIColor.blackColor(),
-            //                    NSStrokeWidthAttributeName: 1,
-            //                    NSFontAttributeName: attrifont
-            //                ])
-            
-            // apply the meme text to the labels
-//            self.topLabel.font = UIFont(name: "HelveticaNeue-CondensedBlack", size: 40.0)
-//            self.topLabel.text = theMeme.topText
-//            self.bottomLabel.font = UIFont(name: "HelveticaNeue-CondensedBlack", size: 40.0)
-//            self.bottomLabel.text = theMeme.bottomText
-            
-            //TODO - this code is incorrect. The imageHeight is not scaled to the UIImageView yet (it is > 1900!). There must be an easier way! Am I supposed to display the memed image here?
-            
-            // position the labels based on top and bottom of the image view
-//            if let imageHeight = self.memedUIImageView.image?.size.height {
-//                let topOffset = (self.memedUIImageView.frame.height - imageHeight)/2
-//                self.topLabel.frame.origin.y = self.memedUIImageView.frame.origin.y + topOffset + 10
-//                self.bottomLabel.frame.origin.y = self.memedUIImageView.frame.origin.y + self.memedUIImageView.frame.height - topOffset - 10
-//            }
+            }            
         }
     }
 }
