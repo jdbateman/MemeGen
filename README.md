@@ -6,6 +6,9 @@ This Swift app for iPhone (iOS 8) let's you add text to photos and share them. U
 * Memes created by the user are persisted using an SQLite Core Data store and a Meme class derived from NSManagedObject.
 * The MVC design pattern is followed and a clear separation is maintained between the model and view.
 * The Core Data stack is encapsulated in a separate class.
+* Memes are presented using views based upon both UITableView and UICollectionView.
+* Custom cells are defined for both the table and collection views.
+* Navigation is implemented using UINavigationController and UITabBarController.
 
 
 ## Screenshots
