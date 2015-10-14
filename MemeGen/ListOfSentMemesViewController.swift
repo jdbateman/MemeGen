@@ -57,6 +57,9 @@ class ListOfSentMemesViewController:  UIViewController, UITableViewDataSource, U
         cell.topImageLabel.text = meme.topText
         cell.bottomImageLabel.text = meme.bottomText
 
+        // set the label text
+        cell.memeLabel.text = meme.topText
+        
         return cell
     }
     
