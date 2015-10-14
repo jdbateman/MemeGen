@@ -14,10 +14,20 @@ This view allows the user to create a Meme.
 
 ![Create Meme](/../screenshots/screenshots/MemeGen_screenshot_createwithcamera.PNG?raw=true "Create Meme")
 
-* UIImagePickerController is used to allow a user to add an image from the photo gallery or capture an image from the camera.
 * Add text to the meme using the keyboard.
 * UIGestureRecognizer is used to manage the keyboard.
 
+### Add Image
+
+The user can add an image to the Meme by selecting the Album button...
+
+![Add Image](/../screenshots/screenshots/MemeGen_screenshot_photos.PNG?raw=true "Add Image")
+
+... or by selecting the Camera button.
+
+![Take Picture](/../screenshots/screenshots/MemeGen_screenshot_camera.png?raw=true "Take Picture")
+
+* UIImagePickerController is used to allow a user to add an image from the photo gallery or capture an image from the camera.
 
 ### Share
 
@@ -45,13 +55,13 @@ Memes are displayed in a collection view when the MyCollection button is selecte
 
 ### Detail
 
-A Meme can be selected in either the List of Collection view to display the Meme detail view.
+Tap on a Meme in either the List view or Collection view to display the Meme in the Meme detail view.
 
 ![Meme Detail](/../screenshots/screenshots/MemeGen_screenshot_detail.png?raw=true "Meme Detail")
 
 ### Edit
 
-Select the Edit button in the Meme Detail view to edit the Meme text or image and save it.
+Select the Edit button in the Meme Detail view to edit the Meme text or image and then save it.
 
 ![Meme Detail](/../screenshots/screenshots/MemeGen_screenshot_editmeme.png?raw=true "Meme Detail")
 
