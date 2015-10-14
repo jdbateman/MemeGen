@@ -1,5 +1,5 @@
 # MemeGen
-This Swift app for iPhone (iOS 8) let's you add text to photos and share them. Uses CoreData.
+This Swift app for iPhone (iOS 8) let's a user add text to any photo and share it as a Meme. User data is persisted using CoreData. Memes are presented in both list and collection layouts.
 
 ## Implementation Highlights
 
