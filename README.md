@@ -1,11 +1,29 @@
 # MemeGen
 This Swift app for iPhone (iOS 8) let's you add text to photos and share them. Uses CoreData.
 
-Warranty:
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+## Implementation Highlights
+
+## Screenshots
+
+### Create
+
+This view allows the user to create a Meme.
+
+![Share](/../screenshots/screenshots/MemeGen_screenshot_createwithcamera.PNG?raw=true "Share")
+
+* UIImagePickerController is used to allow a user to add an image from the photo gallery or capture an image from the camera.
+* Add text to the meme using the keyboard.
+* UIGestureRecognizer is used to manage the keyboard.
+
+
+### Share
+
+A Meme can be shared via a text message, email, AirDrop, social media, saved to disk, etc.
+
+![Share](/../screenshots/screenshots/MemeGen_screenshot_actionsheet.png?raw=true "Share")
+
+* Selecting the Share button presents a UIActionSheet.
+
+###
+
+
