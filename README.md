@@ -3,8 +3,10 @@ This Swift app for iPhone (iOS 8) let's you add text to photos and share them. U
 
 ## Implementation Highlights
 
-* Memes created by the user are persisted using an SQLite Core Data store.
+* Memes created by the user are persisted using an SQLite Core Data store and a Meme class derived from NSManagedObject.
+* The MVC design pattern is followed and a clear separation is maintained between the model and view.
 * The Core Data stack is encapsulated in a separate class.
+
 
 ## Screenshots
 
@@ -15,7 +17,8 @@ This view allows the user to create a Meme.
 ![Create Meme](/../screenshots/screenshots/MemeGen_screenshot_createwithcamera.PNG?raw=true "Create Meme")
 
 * Add text to the meme using the keyboard.
-* UIGestureRecognizer is used to manage the keyboard.
+* Memes are created using UIGraphicsGetImageFromCurrentImageContext.
+* Bottom text field is moved when the keyboard is shown/hidden so that it remains visible.
 
 ### Add Image
 
@@ -27,7 +30,7 @@ The user can add an image to the Meme by selecting the Album button...
 
 ![Take Picture](/../screenshots/screenshots/MemeGen_screenshot_camera.png?raw=true "Take Picture")
 
-* UIImagePickerController is used to allow a user to add an image from the photo gallery or capture an image from the camera.
+* UIImagePickerController and UIImagePickerControllerDelegate are used to allow a user to add an image from the photo gallery or capture an image from the camera.
 
 ### Share
 
@@ -35,7 +38,7 @@ A Meme can be shared via a text message, email, AirDrop, social media, saved to 
 
 ![Share Meme](/../screenshots/screenshots/MemeGen_screenshot_actionsheet.png?raw=true "Share Meme")
 
-* Selecting the Share button presents a UIActionSheet.
+* Selecting the Share button presents a UIActivityViewController.
 
 ### List
 
@@ -43,7 +46,9 @@ Memes can be displayed in a list format by selecting the table button.
 
 ![List View](/../screenshots/screenshots/MemeGen_screenshot_List.png?raw=true "List View")
 
-* Custom TableView cells are used to present the Meme, maintaining proper scale for the image.
+* A UITableView is used to implement this view. 
+* UITableViewDataSource and the UITableViewDelegate protocols are used interface with the model to supply data to the table, and to handle user interaction with the table cells respectively.
+* A custom UITableViewCell is used to present the Meme, maintaining proper scale for the image.
 
 ### Collection
 
@@ -51,7 +56,9 @@ Memes are displayed in a collection view when the MyCollection button is selecte
 
 ![Collection view](/../screenshots/screenshots/MemeGen_screenshot_collection.png?raw=true "Collection View")
 
-* Custom UICollectionView cells are used to present the Meme, maintaining proper scale for the image.
+* A UICollectionView is used to implement this view.
+* UICollectionViewDataSource and UICollectionViewDelegate protocols are used to supply data to the collection view from the model, and to handle user interaction with the collection items respectively.
+* A custom UICollectionViewCell is used to present the Meme, maintaining proper scale for the image.
 
 ### Detail
 
